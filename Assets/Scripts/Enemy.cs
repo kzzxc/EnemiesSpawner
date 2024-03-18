@@ -3,20 +3,30 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
-    private Vector2 _direction;
+    private Transform _target;
+    private Vector3 _lastPosition;
 
     private void Update()
     {
         Move();
     }
 
-    public void SetDirection(Vector2 direction)
+    public void SetTarget(Transform target)
     {
-        _direction = direction.normalized;
+        _target = target;
     }
-    
+
     private void Move()
     {
-        transform.Translate(_direction * (_speed * Time.deltaTime));
+        if (_target != null)
+        {
+            var targetPosition = _target.position;
+            var distance = 0.2f;
+
+            if (Vector2.Distance(transform.position, targetPosition) > distance)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, _speed * Time.deltaTime);
+            }
+        }
     }
 }

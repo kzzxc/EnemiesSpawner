@@ -4,39 +4,34 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private Enemy _enemyPrefab;
-    [SerializeField] private Transform[] _spawnPoints;
+    [SerializeField] private Transform _spawnPoint;
+    [SerializeField] private Transform _target;
 
-    private float _spawnInterval = 2;
+    private int _spawnInterval;
     private bool _isPlaying = true;
-
+    private int _minIntervalValue = 2;
+    private int _maxIntervalValue = 5;
+    
     private void Start()
     {
-        StartCoroutine(SpawnEnemyRoutine(_spawnInterval, _enemyPrefab, _spawnPoints));
+        _spawnInterval = Random.Range(_minIntervalValue, _maxIntervalValue);
+        StartCoroutine(SpawnEnemyRoutine(_spawnInterval, _enemyPrefab, _spawnPoint));
     }
 
-    private IEnumerator SpawnEnemyRoutine(float interval, Enemy enemy, Transform[] spawnPoints)
+    private IEnumerator SpawnEnemyRoutine(float interval, Enemy enemy, Transform spawnPoint)
     {
         var spawnInterval = new WaitForSeconds(interval);
 
         while (_isPlaying)
         {
-            foreach (Transform spawnPoint in spawnPoints)
-            {
-                SpawnEnemy(enemy, spawnPoint.position);
-                yield return spawnInterval;
-            }
+            SpawnEnemy(enemy, spawnPoint.position, _target);
+            yield return spawnInterval;
         }
     }
 
-    private void SpawnEnemy(Enemy enemy, Vector2 spawnPosition)
+    private void SpawnEnemy(Enemy enemy, Vector2 spawnPosition, Transform target)
     {
-        Vector2 randomDirection = GetRandomDirection();
-        
-        Instantiate(enemy, spawnPosition, Quaternion.identity).SetDirection(randomDirection);
-    }
-
-    private Vector2 GetRandomDirection()
-    {
-        return Random.Range(0, 2) == 0 ? Vector2.left : Vector2.right;
+        Enemy newEnemy = Instantiate(enemy, spawnPosition, Quaternion.identity);
+        newEnemy.SetTarget(target);
     }
 }
